@@ -118,6 +118,64 @@ static const char *FS_DRAW =
     " o=vec4(col,1.0);\n"
     "}\n";
 
+
+// ================= scene "aurora": Catppuccin Mocha aurora over mountains =================
+#define AU_COMMON \
+    "#version 300 es\n" \
+    "precision highp float; precision highp int;\n" \
+    "vec3 hex(int h){return vec3(float((h>>16)&255),float((h>>8)&255),float(h&255))/255.0;}\n" \
+    "uint pcg(uint v){uint s=v*747796405u+2891336453u;uint w=((s>>((s>>28u)+4u))^s)*277803737u;return (w>>22u)^w;}\n" \
+    "float hash(vec2 p){uvec2 q=uvec2(ivec2(floor(p))+ivec2(65536));return float(pcg(q.x+pcg(q.y))&0xffffffu)/16777215.0;}\n" \
+    "float noise(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.0-2.0*f);" \
+    " return mix(mix(hash(i),hash(i+vec2(1,0)),f.x),mix(hash(i+vec2(0,1)),hash(i+vec2(1,1)),f.x),f.y);}\n" \
+    "float h1(float x){return fract(sin(x*127.1)*43758.5453);}\n" \
+    "float n1(float x){float i=floor(x),f=fract(x);f=f*f*(3.0-2.0*f);return mix(h1(i),h1(i+1.0),f);}\n" \
+    "float f1(float x){float s=0.0,a=0.5;for(int i=0;i<4;i++){s+=a*n1(x);x=x*2.1+3.7;a*=0.5;}return s;}\n" \
+    "float r1(float x){float s=0.0,a=0.55;for(int i=0;i<5;i++){s+=a*(1.0-abs(2.0*n1(x)-1.0));x=x*2.07+3.7;a*=0.48;}return s;}\n"
+
+// pass 1 at quarter resolution: sky gradient + aurora curtains (all soft, so low-res is invisible)
+static const char *AU_SKY = AU_COMMON
+    "uniform float uTime; uniform vec2 uGrid; out vec4 o;\n"
+    "void main(){\n"
+    " vec2 uv=gl_FragCoord.xy/uGrid; float ax=uv.x*uGrid.x/uGrid.y, t=uTime;\n"
+    " vec3 col=mix(hex(0x161427),hex(0x06060b),smoothstep(0.05,0.95,uv.y));\n"
+    " col+=hex(0x3a2550)*0.30*exp(-max(uv.y-0.2,0.0)*5.0);\n"
+    " vec3 au=vec3(0.0);\n"
+    " for(int i=0;i<3;i++){ float fi=float(i);\n"
+    "  float base=0.52+0.10*fi+0.22*(f1(ax*0.9+fi*13.0+t*0.012)-0.5)+0.04*sin(ax*3.1+fi*2.0+t*0.05);\n"
+    "  float dy=uv.y-base;\n"
+    "  float body=dy>0.0?exp(-dy*(6.5-fi*1.6)):exp(dy*45.0);\n"
+    "  float rays=0.15+1.1*noise(vec2(ax*26.0+fi*7.0+f1(ax*1.7+t*0.025)*7.0,t*0.07));\n"
+    "  float flick=0.45+0.55*noise(vec2(ax*2.2-t*0.04,fi*5.0+t*0.01));\n"
+    "  vec3 c=mix(i==1?hex(0x3fd6e0):hex(0x3be3a6),hex(0xb07cf7),smoothstep(0.02,0.30,dy));\n"
+    "  c=mix(c,hex(0xa6e3a1),0.35*(1.0-fi*0.5)*exp(-abs(dy)*25.0));\n"
+    "  au+=c*body*rays*flick*(0.62-0.14*fi);\n"
+    " }\n"
+    " o=vec4(col+au*1.05,1.0);\n"
+    "}\n";
+
+// pass 2 full resolution: upscale sky, stars, three mountain ridges, rim light, mist, grain
+static const char *AU_DRAW = AU_COMMON
+    "uniform sampler2D uCells; uniform vec2 uRes; uniform float uTime; out vec4 o;\n"
+    "void main(){\n"
+    " vec2 uv=gl_FragCoord.xy/uRes; float ax=uv.x*uRes.x/uRes.y, px=1.0/uRes.y;\n"
+    " vec3 col=texture(uCells,uv).rgb;\n"
+    " float h=hash(gl_FragCoord.xy*0.5);\n"
+    " if(h>0.9972) col+=hex(0xcdd6f4)*(0.45+0.55*sin(uTime*1.1+h*500.0))*0.75*smoothstep(0.3,0.75,uv.y);\n"
+    " vec3 glow=texture(uCells,vec2(uv.x,0.62)).rgb;\n"
+    " float m1=0.17+0.30*pow(r1(ax*0.75+2.0),2.2);\n"
+    " float m2=0.10+0.20*pow(r1(ax*1.2+9.0),2.2);\n"
+    " float m3=0.03+0.12*pow(r1(ax*1.9+21.0),2.0);\n"
+    " if(uv.y<m1){ col=mix(hex(0x1e1c31),hex(0x2c2843),smoothstep(m1-0.06,m1-0.30,uv.y))+glow*0.12;"
+    "   col+=glow*1.2*smoothstep(2.0*px,0.0,m1-uv.y); }\n"
+    " if(uv.y<m2){ col=mix(hex(0x121120),hex(0x1d1a2e),smoothstep(m2-0.05,m2-0.22,uv.y))+glow*0.05;"
+    "   col+=glow*0.5*smoothstep(1.5*px,0.0,m2-uv.y); }\n"
+    " if(uv.y<m3){ col=hex(0x08080d)+glow*0.02; col+=glow*0.25*smoothstep(1.2*px,0.0,m3-uv.y); }\n"
+    " col*=1.0-0.30*smoothstep(0.6,1.2,length((uv-0.5)*vec2(1.4,1.0)));\n"
+    " col+=(hash(gl_FragCoord.xy+vec2(floor(fract(uTime*0.37)*311.0)))-0.5)*(3.0/255.0);\n"
+    " o=vec4(col,1.0);\n"
+    "}\n";
+
 static GLuint compile(GLenum type, const char *src) {
     GLuint s = glCreateShader(type);
     glShaderSource(s, 1, &src, NULL);
@@ -140,8 +198,10 @@ static double now(void) { struct timespec t; clock_gettime(CLOCK_MONOTONIC, &t);
 
 int main(int argc, char **argv) {
     double fps = 15;
+    int aurora = 0;
     for (int i = 1; i < argc; i++)
         if (!strcmp(argv[i], "--fps") && i + 1 < argc) fps = atof(argv[++i]);
+        else if (!strcmp(argv[i], "--scene") && i + 1 < argc) aurora = !strcmp(argv[++i], "aurora");
     if (fps < 1) fps = 1;
     if (fps > 60) fps = 60;
     signal(SIGTERM, on_signal);
@@ -189,7 +249,7 @@ int main(int argc, char **argv) {
     eglSwapInterval(ed, 1);
     fprintf(stderr, "mbxd-sky: %dx%d @ %.0f fps on %s\n", width, height, fps, glGetString(GL_RENDERER));
 
-    GLuint pcell = program(FS_CELLS), pdraw = program(FS_DRAW), vao, tex = 0, fbo;
+    GLuint pcell = program(aurora ? AU_SKY : FS_CELLS), pdraw = program(aurora ? AU_DRAW : FS_DRAW), vao, tex = 0, fbo;
     glGenVertexArrays(1, &vao); glBindVertexArray(vao);
     glGenFramebuffers(1, &fbo);
     GLint uT1 = glGetUniformLocation(pcell, "uTime"), uG = glGetUniformLocation(pcell, "uGrid");
@@ -204,12 +264,16 @@ int main(int argc, char **argv) {
         if (resized) {
             resized = 0;
             wl_egl_window_resize(win, width, height, 0, 0);
-            cols = (width + CELL_W - 1) / CELL_W; rows = (height + CELL_H - 1) / CELL_H;
+            if (aurora) { cols = (width + 3) / 4; rows = (height + 3) / 4; }
+            else { cols = (width + CELL_W - 1) / CELL_W; rows = (height + CELL_H - 1) / CELL_H; }
             if (tex) glDeleteTextures(1, &tex);
             glGenTextures(1, &tex); glBindTexture(GL_TEXTURE_2D, tex);
             glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, cols, rows, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+            GLint filt = aurora ? GL_LINEAR : GL_NEAREST;
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filt);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filt);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
             glBindFramebuffer(GL_FRAMEBUFFER, fbo);
             glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, tex, 0);
         }

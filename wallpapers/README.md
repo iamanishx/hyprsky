@@ -7,6 +7,7 @@ wallpapers/
   aurora/   Catppuccin Mocha aurora over ridged mountains (default)
   clouds/   black ASCII-art clouds over a starfield
   latte-dawn/  light: Catppuccin Latte pastel sunrise over lavender hills
+  thunder/     gold horizon line, crackling arcs, embers, reflection; optional --image
 ```
 
 ## Adding one
@@ -25,6 +26,7 @@ wallpapers/
 ```ini
 cell   = 4 4       # pass1 runs once per 4x4 screen pixels (1/16 of the work)
 filter = linear    # how pass2 samples pass1: linear (smooth) or nearest (blocky / grid)
+image  = me.png    # optional PNG: relative to this folder, ~/..., or absolute. --image overrides it
 ```
 
 ### `pass1.frag`: the expensive part, at low resolution
@@ -44,6 +46,8 @@ Reads pass1 and adds the sharp details (edges, glyphs, stars, grain).
 | Uniform | |
 |---|---|
 | `sampler2D uCells` | pass1's output |
+| `sampler2D uImage` | the optional picture (row 0 = top, so sample with `1.0 - y`) |
+| `vec2 uImageSize` | picture size in pixels, `(0,0)` when there isn't one. Available in pass1 too |
 | `float uTime`, `vec2 uGrid`, `vec2 uRes` | same as above |
 
 Both files are GLSL ES 3.00. Don't write `#version` or `precision`: hyprsky adds them. Declare `out vec4 o;` (any name) and write an opaque colour.

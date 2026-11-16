@@ -6,12 +6,13 @@ One small C program, two GPU passes, no browser, no video.
 | `aurora` (default) | `clouds` |
 |---|---|
 | ![aurora](screenshots/aurora.jpg) | ![clouds](screenshots/clouds.jpg) |
-| **`latte-dawn`** | |
-| ![latte-dawn](screenshots/latte-dawn.jpg) | |
+| **`latte-dawn`** | **`thunder`** |
+| ![latte-dawn](screenshots/latte-dawn.jpg) | ![thunder](screenshots/thunder.jpg) |
 
 - **aurora**: Catppuccin Mocha aurora curtains over three ridged mountain layers, twinkling stars, film grain.
 - **clouds**: black ASCII-art clouds (` .:;~)(o8`) drifting over a starfield.
 - **latte-dawn**: light theme in Catppuccin Latte. Pastel sunrise, soft drifting clouds, rolling lavender hills with valley mist.
+- **thunder**: a gold horizon line on black with a light pulse running along it, small arcs crackling along the line, drifting embers and a rippled floor reflection. Add `--image you.png` to stand your own cut-out picture on the line, reflected too.
 
 ## Why it's light
 
@@ -37,13 +38,13 @@ How:
 Ubuntu / Debian:
 
 ```sh
-sudo apt install build-essential pkg-config libwayland-dev libegl-dev libgles-dev wayland-protocols
+sudo apt install build-essential pkg-config libwayland-dev libegl-dev libgles-dev libpng-dev wayland-protocols
 ```
 
 Arch:
 
 ```sh
-sudo pacman -S base-devel wayland mesa wayland-protocols
+sudo pacman -S base-devel wayland mesa libpng wayland-protocols
 ```
 
 ### 2. Build and install
@@ -85,6 +86,7 @@ pkill -x hyprsky; hyprctl dispatch exec "~/.local/bin/hyprsky --scene aurora"
 | Flag | Default | |
 |---|---|---|
 | `--scene NAME` | aurora | Wallpaper folder name, or a path to one |
+| `--image FILE.png` | | Picture for wallpapers that use one (`thunder`). Transparent PNG, with the subject's feet at the bottom edge |
 | `--fps N` | 15 | Frame cap, 1–60 |
 | `--list` | | Show installed wallpapers |
 

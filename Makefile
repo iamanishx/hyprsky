@@ -1,6 +1,6 @@
 P=wlr-layer-shell-unstable-v1
 XDG=/usr/share/wayland-protocols/stable/xdg-shell/xdg-shell.xml
-PKGS=wayland-client wayland-egl egl glesv2
+PKGS=wayland-client wayland-egl egl glesv2 libpng
 PREFIX?=$(HOME)/.local
 DATADIR?=$(PREFIX)/share/hyprsky
 

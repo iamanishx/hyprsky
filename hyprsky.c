@@ -4,7 +4,8 @@
 //   scene.conf  - "cell = W H" (pass1 runs once per WxH screen pixels), "filter = linear|nearest"
 //   pass1.frag  - runs at low resolution into a small texture (the expensive part)
 //   pass2.frag  - runs per screen pixel and reads pass1 via uCells (keep it cheap)
-// Both files get "#version 300 es" + precision prepended. Uniforms: uTime, uGrid, uRes, uCells.
+//   image = x.png in scene.conf (or --image) - optional picture, given to shaders as uImage / uImageSize
+// Both files get "#version 300 es" + precision prepended. Uniforms: uTime, uGrid, uRes, uCells, uImage, uImageSize.
 //
 // Rendering is capped at --fps and throttled by Wayland frame callbacks, so a hidden wallpaper stops drawing.
 // SIGUSR1 reloads the shaders (handy while editing a wallpaper).
@@ -14,6 +15,7 @@
 #include <dirent.h>
 #include <limits.h>
 #include <math.h>
+#include <png.h>
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -115,22 +117,29 @@ static char *read_file(const char *path) {
     return buf;
 }
 
-struct scene { int cell_w, cell_h; GLint filter; };
+struct scene { int cell_w, cell_h; GLint filter; char image[PATH_MAX]; };
 
 static void read_conf(const char *dir, struct scene *sc) {
     sc->cell_w = sc->cell_h = 4;
     sc->filter = GL_LINEAR;
-    char p[PATH_MAX + 16], line[256];
+    sc->image[0] = 0;
+    char p[PATH_MAX + 16], line[PATH_MAX + 64];
     snprintf(p, sizeof p, "%s/scene.conf", dir);
     FILE *f = fopen(p, "r");
     if (!f) return;
     while (fgets(line, sizeof line, f)) {
-        char key[32], v1[32];
+        char key[32], v1[PATH_MAX];
         int a, b;
         if (line[0] == '#') continue;
         if (sscanf(line, " cell = %d %d", &a, &b) == 2 && a > 0 && b > 0) { sc->cell_w = a; sc->cell_h = b; }
-        else if (sscanf(line, " %31[a-z] = %31s", key, v1) == 2 && !strcmp(key, "filter"))
+        else if (sscanf(line, " %31[a-z] = %4095s", key, v1) == 2 && !strcmp(key, "filter"))
             sc->filter = strcmp(v1, "nearest") ? GL_LINEAR : GL_NEAREST;
+        else if (sscanf(line, " %31[a-z] = %4095[^\n]", key, v1) == 2 && !strcmp(key, "image")) {
+            const char *home = getenv("HOME");
+            if (v1[0] == '/') snprintf(sc->image, PATH_MAX, "%s", v1);
+            else if (v1[0] == '~' && home) snprintf(sc->image, PATH_MAX, "%.2000s%.2000s", home, v1 + 1);
+            else snprintf(sc->image, PATH_MAX, "%.2000s/%.2000s", dir, v1);   // relative to the wallpaper folder
+        }
     }
     fclose(f);
 }
@@ -185,7 +194,40 @@ static GLuint load_program(const char *dir, const char *file) {
     return p;
 }
 
-struct pass { GLuint prog; GLint uTime, uGrid, uRes, uCells; };
+// Loads a PNG into texture unit 1. Returns 0 (and keeps no texture) if there's no image.
+static int img_w, img_h;
+static GLuint load_image(const char *path, GLuint old) {
+    if (old) glDeleteTextures(1, &old);
+    img_w = img_h = 0;
+    if (!path || !*path) return 0;
+    png_image im;
+    memset(&im, 0, sizeof im);
+    im.version = PNG_IMAGE_VERSION;
+    if (!png_image_begin_read_from_file(&im, path)) { fprintf(stderr, "hyprsky: cannot read image %s\n", path); return 0; }
+    im.format = PNG_FORMAT_RGBA;
+    unsigned char *px = malloc(PNG_IMAGE_SIZE(im));
+    if (!png_image_finish_read(&im, NULL, px, 0, NULL)) {
+        fprintf(stderr, "hyprsky: bad image %s: %s\n", path, im.message);
+        free(px);
+        return 0;
+    }
+    GLuint t;
+    glGenTextures(1, &t);
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, t);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, im.width, im.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, px);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glActiveTexture(GL_TEXTURE0);
+    free(px);   // the pixels now live on the GPU only
+    img_w = im.width;
+    img_h = im.height;
+    return t;
+}
+
+struct pass { GLuint prog; GLint uTime, uGrid, uRes, uCells, uImage, uImageSize; };
 
 static int load_pass(struct pass *ps, const char *dir, const char *file) {
     GLuint p = load_program(dir, file);
@@ -196,6 +238,8 @@ static int load_pass(struct pass *ps, const char *dir, const char *file) {
     ps->uGrid = glGetUniformLocation(p, "uGrid");
     ps->uRes = glGetUniformLocation(p, "uRes");
     ps->uCells = glGetUniformLocation(p, "uCells");
+    ps->uImage = glGetUniformLocation(p, "uImage");
+    ps->uImageSize = glGetUniformLocation(p, "uImageSize");
     return 1;
 }
 
@@ -205,13 +249,16 @@ static void set_uniforms(struct pass *ps, float t, int cols, int rows) {
     if (ps->uGrid >= 0) glUniform2f(ps->uGrid, cols, rows);
     if (ps->uRes >= 0) glUniform2f(ps->uRes, width, height);
     if (ps->uCells >= 0) glUniform1i(ps->uCells, 0);
+    if (ps->uImage >= 0) glUniform1i(ps->uImage, 1);
+    if (ps->uImageSize >= 0) glUniform2f(ps->uImageSize, img_w, img_h);
 }
 
 static double now(void) { struct timespec t; clock_gettime(CLOCK_MONOTONIC, &t); return t.tv_sec + t.tv_nsec / 1e9; }
 
 static void usage(void) {
-    puts("usage: hyprsky [--scene NAME|PATH] [--fps N] [--list]\n"
+    puts("usage: hyprsky [--scene NAME|PATH] [--image FILE.png] [--fps N] [--list]\n"
          "  --scene  wallpaper folder name (default " DEFAULT_SCENE ") or a path to one\n"
+         "  --image  picture for wallpapers that use one (overrides scene.conf)\n"
          "  --fps    frame cap, 1-60 (default 15)\n"
          "  --list   show installed wallpapers\n"
          "Wallpapers are searched in $HYPRSKY_WALLPAPERS, ~/.local/share/hyprsky/wallpapers,\n"
@@ -222,10 +269,11 @@ static void usage(void) {
 // ---------------------------------------------------------------- main
 int main(int argc, char **argv) {
     double fps = 15;
-    const char *scene_name = DEFAULT_SCENE;
+    const char *scene_name = DEFAULT_SCENE, *image_arg = NULL;
     for (int i = 1; i < argc; i++) {
         if (!strcmp(argv[i], "--fps") && i + 1 < argc) fps = atof(argv[++i]);
         else if (!strcmp(argv[i], "--scene") && i + 1 < argc) scene_name = argv[++i];
+        else if (!strcmp(argv[i], "--image") && i + 1 < argc) image_arg = argv[++i];
         else if (!strcmp(argv[i], "--list")) { list_scenes(); return 0; }
         else { usage(); return !strcmp(argv[i], "--help") || !strcmp(argv[i], "-h") ? 0 : 2; }
     }
@@ -239,6 +287,7 @@ int main(int argc, char **argv) {
     }
     struct scene sc;
     read_conf(scene_dir, &sc);
+    if (image_arg) snprintf(sc.image, PATH_MAX, "%s", image_arg);
 
     signal(SIGTERM, on_signal);
     signal(SIGINT, on_signal);
@@ -288,7 +337,9 @@ int main(int argc, char **argv) {
 
     struct pass p1 = {0}, p2 = {0};
     if (!load_pass(&p1, scene_dir, "pass1.frag") || !load_pass(&p2, scene_dir, "pass2.frag")) return 1;
+    GLuint img = load_image(sc.image, 0);
     fprintf(stderr, "hyprsky: %s, %dx%d @ %.0f fps on %s\n", scene_dir, width, height, fps, glGetString(GL_RENDERER));
+    if (img) fprintf(stderr, "hyprsky: image %s (%dx%d)\n", sc.image, img_w, img_h);
 
     GLuint vao, tex = 0, fbo;
     glGenVertexArrays(1, &vao);
@@ -304,6 +355,9 @@ int main(int argc, char **argv) {
             reload = 0;
             struct scene ns;
             read_conf(scene_dir, &ns);
+            if (image_arg) snprintf(ns.image, PATH_MAX, "%s", image_arg);
+            img = load_image(ns.image, img);
+            snprintf(sc.image, PATH_MAX, "%s", ns.image);
             int ok1 = load_pass(&p1, scene_dir, "pass1.frag"), ok2 = load_pass(&p2, scene_dir, "pass2.frag");
             if (ns.cell_w != sc.cell_w || ns.cell_h != sc.cell_h || ns.filter != sc.filter) { sc = ns; resized = 1; }
             fprintf(stderr, "hyprsky: reloaded%s\n", ok1 && ok2 ? "" : " (errors above, kept the old shader)");
@@ -333,6 +387,8 @@ int main(int argc, char **argv) {
 
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
         glViewport(0, 0, width, height);
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, img);
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, tex);
         set_uniforms(&p2, t, cols, rows);

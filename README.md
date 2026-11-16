@@ -3,7 +3,7 @@
 Tiny animated shader wallpapers for Hyprland (and any wlroots compositor with layer-shell).
 One small C program, two GPU passes, no browser, no video.
 
-| `--scene aurora` | default (ASCII clouds) |
+| `aurora` (default) | `clouds` |
 |---|---|
 | ![aurora](screenshots/aurora.jpg) | ![clouds](screenshots/clouds.jpg) |
 
@@ -49,14 +49,15 @@ sudo pacman -S base-devel wayland mesa wayland-protocols
 git clone https://github.com/iamanishx/hyprsky
 cd hyprsky
 make
-make install        # copies the binary to ~/.local/bin/hyprsky
+make install        # binary -> ~/.local/bin/hyprsky, wallpapers -> ~/.local/share/hyprsky/wallpapers
 ```
 
 ### 3. Try it
 
 ```sh
-hyprsky --scene aurora      # Ctrl+C to stop
-hyprsky                     # ASCII clouds
+hyprsky                     # aurora (Ctrl+C to stop)
+hyprsky --scene clouds      # ASCII clouds
+hyprsky --list              # installed wallpapers
 hyprsky --fps 10            # even lighter
 ```
 
@@ -80,15 +81,22 @@ pkill -x hyprsky; hyprctl dispatch exec "~/.local/bin/hyprsky --scene aurora"
 
 | Flag | Default | |
 |---|---|---|
-| `--scene aurora` | clouds | Pick the aurora scene |
+| `--scene NAME` | aurora | Wallpaper folder name, or a path to one |
 | `--fps N` | 15 | Frame cap, 1–60 |
+| `--list` | | Show installed wallpapers |
 
-## Hacking
+`pkill -USR1 hyprsky` reloads the shaders without restarting.
 
-All shaders are GLSL ES 3.00 strings inside `hyprsky.c`:
+## Layout
 
-- `AU_SKY` / `AU_DRAW`: aurora sky (low-res pass) and mountains, stars and grain (full-res pass). Colors are `hex(0x......)` calls, so retheming takes a minute.
-- `FS_CELLS` / `FS_DRAW`: cloud density per character cell, then glyph bitmaps.
+```
+hyprsky.c            the engine: Wayland layer surface, EGL, two-pass renderer, fps cap
+wallpapers/
+  aurora/            scene.conf + pass1.frag + pass2.frag
+  clouds/
+```
+
+The engine knows nothing about any particular wallpaper. To make your own, add a folder under `wallpapers/`. [wallpapers/README.md](wallpapers/README.md) explains the three files and how to live-reload while you edit. Pull requests with new wallpapers are welcome.
 
 Limitation: it draws on one output (the compositor's choice); multi-monitor support isn't there yet.
 

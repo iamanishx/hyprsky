@@ -1,4 +1,4 @@
-# mbxd-sky
+# hyprsky
 
 Tiny animated shader wallpapers for Hyprland (and any wlroots compositor with layer-shell).
 One small C program, two GPU passes, no browser, no video.
@@ -46,18 +46,18 @@ sudo pacman -S base-devel wayland mesa wayland-protocols
 ### 2. Build and install
 
 ```sh
-git clone https://github.com/iamanishx/mbxd-sky
-cd mbxd-sky
+git clone https://github.com/iamanishx/hyprsky
+cd hyprsky
 make
-make install        # copies the binary to ~/.local/bin/mbxd-sky
+make install        # copies the binary to ~/.local/bin/hyprsky
 ```
 
 ### 3. Try it
 
 ```sh
-mbxd-sky --scene aurora      # Ctrl+C to stop
-mbxd-sky                     # ASCII clouds
-mbxd-sky --fps 10            # even lighter
+hyprsky --scene aurora      # Ctrl+C to stop
+hyprsky                     # ASCII clouds
+hyprsky --fps 10            # even lighter
 ```
 
 ### 4. Make it your wallpaper (Hyprland)
@@ -65,7 +65,7 @@ mbxd-sky --fps 10            # even lighter
 In `~/.config/hypr/hyprland.conf`, comment out your old wallpaper (`swaybg`, `hyprpaper`, …) and add:
 
 ```ini
-exec-once = env __EGL_VENDOR_LIBRARY_FILENAMES=/usr/share/glvnd/egl_vendor.d/50_mesa.json ~/.local/bin/mbxd-sky --scene aurora --fps 15
+exec-once = env __EGL_VENDOR_LIBRARY_FILENAMES=/usr/share/glvnd/egl_vendor.d/50_mesa.json ~/.local/bin/hyprsky --scene aurora --fps 15
 ```
 
 The `__EGL_VENDOR_LIBRARY_FILENAMES` part pins it to Mesa (Intel/AMD iGPU), so a hybrid-graphics laptop doesn't wake the NVIDIA card. Drop it on a desktop with a single GPU.
@@ -73,7 +73,7 @@ The `__EGL_VENDOR_LIBRARY_FILENAMES` part pins it to Mesa (Intel/AMD iGPU), so a
 To restart it without logging out:
 
 ```sh
-pkill -x mbxd-sky; hyprctl dispatch exec "~/.local/bin/mbxd-sky --scene aurora"
+pkill -x hyprsky; hyprctl dispatch exec "~/.local/bin/hyprsky --scene aurora"
 ```
 
 ## Options
@@ -85,7 +85,7 @@ pkill -x mbxd-sky; hyprctl dispatch exec "~/.local/bin/mbxd-sky --scene aurora"
 
 ## Hacking
 
-All shaders are GLSL ES 3.00 strings inside `mbxd-sky.c`:
+All shaders are GLSL ES 3.00 strings inside `hyprsky.c`:
 
 - `AU_SKY` / `AU_DRAW`: aurora sky (low-res pass) and mountains, stars and grain (full-res pass). Colors are `hex(0x......)` calls, so retheming takes a minute.
 - `FS_CELLS` / `FS_DRAW`: cloud density per character cell, then glyph bitmaps.

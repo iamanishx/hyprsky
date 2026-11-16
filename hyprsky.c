@@ -1,4 +1,4 @@
-// mbxd-sky: tiny animated ASCII-cloud wallpaper for wlroots/Hyprland.
+// hyprsky: tiny animated ASCII-cloud wallpaper for wlroots/Hyprland.
 // Pass 1 computes clouds once per character cell into a tiny texture
 // (160x68 on 1080p); pass 2 just draws glyph bitmaps from it. Capped FPS,
 // and it naturally pauses when the compositor stops sending frame callbacks.
@@ -247,7 +247,7 @@ int main(int argc, char **argv) {
     EGLSurface es = eglCreateWindowSurface(ed, cfg, (EGLNativeWindowType)win, NULL);
     eglMakeCurrent(ed, es, es, ctx);
     eglSwapInterval(ed, 1);
-    fprintf(stderr, "mbxd-sky: %dx%d @ %.0f fps on %s\n", width, height, fps, glGetString(GL_RENDERER));
+    fprintf(stderr, "hyprsky: %dx%d @ %.0f fps on %s\n", width, height, fps, glGetString(GL_RENDERER));
 
     GLuint pcell = program(aurora ? AU_SKY : FS_CELLS), pdraw = program(aurora ? AU_DRAW : FS_DRAW), vao, tex = 0, fbo;
     glGenVertexArrays(1, &vao); glBindVertexArray(vao);

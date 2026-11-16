@@ -6,6 +6,7 @@ Each folder here is one wallpaper. `hyprsky --scene <folder>` runs it, and `hypr
 wallpapers/
   aurora/   Catppuccin Mocha aurora over ridged mountains (default)
   clouds/   black ASCII-art clouds over a starfield
+  latte-dawn/  light: Catppuccin Latte pastel sunrise over lavender hills
 ```
 
 ## Adding one

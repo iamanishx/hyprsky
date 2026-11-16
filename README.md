@@ -6,9 +6,12 @@ One small C program, two GPU passes, no browser, no video.
 | `aurora` (default) | `clouds` |
 |---|---|
 | ![aurora](screenshots/aurora.jpg) | ![clouds](screenshots/clouds.jpg) |
+| **`latte-dawn`** | |
+| ![latte-dawn](screenshots/latte-dawn.jpg) | |
 
 - **aurora**: Catppuccin Mocha aurora curtains over three ridged mountain layers, twinkling stars, film grain.
 - **clouds**: black ASCII-art clouds (` .:;~)(o8`) drifting over a starfield.
+- **latte-dawn**: light theme in Catppuccin Latte. Pastel sunrise, soft drifting clouds, rolling lavender hills with valley mist.
 
 ## Why it's light
 

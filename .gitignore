@@ -2,3 +2,5 @@ hyprsky
 *-protocol.c
 *-client-protocol.h
 run.log
+/tests/render-scene
+__pycache__/

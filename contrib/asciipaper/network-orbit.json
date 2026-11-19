@@ -1,0 +1,26 @@
+{
+  "title": "Network Orbit \u2014 Cyan / Violet / Amber ASCII",
+  "shader": "network-orbit.glsl",
+  "media": "network-orbit-map",
+  "charset": " .:-=+*#%@",
+  "font": "DejaVu Sans Mono",
+  "cell": 5.0,
+  "aspect": 0.75,
+  "maxCells": 110000,
+  "weight": 650,
+  "fill": 0.035,
+  "background": "#030712",
+  "uniforms": {
+    "globeZoom": 1.04,
+    "rotationSpeed": 0.024,
+    "flowSpeed": 1.0,
+    "exposure": 1.4,
+    "landTint": "#21586d",
+    "cyanTrail": "#45ddff",
+    "violetTrail": "#af8aff",
+    "amberTrail": "#ffc46b"
+  },
+  "effects": {
+    "bloom": 0.32
+  }
+}

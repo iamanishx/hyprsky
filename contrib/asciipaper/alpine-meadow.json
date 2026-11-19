@@ -1,0 +1,31 @@
+{
+  "title": "Alpine Meadow \u2014 Wind & Clouds",
+  "shader": "alpine-meadow.glsl",
+  "media": "alpine-meadow",
+  "charset": " .:-=+*#%@",
+  "font": "DejaVu Sans Mono",
+  "cell": 2.6,
+  "aspect": 0.72,
+  "weight": 600,
+  "maxCells": 360000,
+  "fill": 0.06,
+  "background": "#080d14",
+  "uniforms": {
+    "speed": 1.0,
+    "contrast": 1.08,
+    "brightness": 0.015,
+    "gamma": 0.98,
+    "threshold": 0.025,
+    "vivid": 0.45,
+    "fit": 1,
+    "zoom": 1.0,
+    "backdrop": 0,
+    "skyLimit": 0.4,
+    "flowerWind": 1.0,
+    "lightFlicker": 0.0,
+    "tint": "#a8bbc8"
+  },
+  "effects": {
+    "bloom": 0.46
+  }
+}

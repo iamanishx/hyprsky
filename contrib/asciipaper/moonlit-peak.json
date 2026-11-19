@@ -1,0 +1,28 @@
+{
+  "title": "Moonlit Peak \u2014 Moving Clouds",
+  "shader": "alpine-meadow.glsl",
+  "media": "moonlit-peak",
+  "charset": " .:-=+*#%@",
+  "font": "DejaVu Sans Mono",
+  "cell": 4.6,
+  "aspect": 0.72,
+  "weight": 600,
+  "maxCells": 180000,
+  "fill": 0.05,
+  "background": "#050912",
+  "uniforms": {
+    "speed": 0.9,
+    "contrast": 1.08,
+    "brightness": 0.012,
+    "gamma": 0.96,
+    "threshold": 0.026,
+    "vivid": 0.34,
+    "fit": 0,
+    "zoom": 1.0,
+    "backdrop": 0.14,
+    "skyLimit": 0.58,
+    "flowerWind": 0.0,
+    "lightFlicker": 0.28,
+    "tint": "#9bb2c4"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "title": "Aurora",
+  "shader": "aurora.glsl",
+  "charset": " .:-=+*#%@",
+  "cell": 8,
+  "aspect": 0.55,
+  "fill": 0.15,
+  "maxCells": 60000,
+  "background": "#03070c"
+}

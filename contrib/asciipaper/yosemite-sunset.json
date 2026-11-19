@@ -1,0 +1,17 @@
+{
+  "title": "Yosemite Sunset \u2014 Live Dense ASCII",
+  "shader": "yosemite-sunset.glsl",
+  "media": "yosemite-sunset",
+  "charset": " .:-=+*#%@",
+  "font": "DejaVu Sans Mono",
+  "cell": 2.4,
+  "aspect": 0.85,
+  "maxCells": 400000,
+  "weight": 600,
+  "fill": 0.02,
+  "background": "#000000",
+  "effects": {
+    "bloom": 0.45,
+    "rgbSplit": 0.08
+  }
+}

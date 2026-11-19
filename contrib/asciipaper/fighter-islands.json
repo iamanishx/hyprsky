@@ -1,0 +1,14 @@
+{
+  "title": "Fighter Over the Islands \u2014 Animated ASCII",
+  "shader": "fighter-islands.glsl",
+  "charset": " .:-=+*#%@",
+  "font": "DejaVu Sans Mono",
+  "cell": 4.8,
+  "aspect": 0.72,
+  "weight": 600,
+  "fill": 0.08,
+  "background": "#071c36",
+  "effects": {
+    "bloom": 0.16
+  }
+}

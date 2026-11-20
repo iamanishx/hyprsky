@@ -1,0 +1,29 @@
+{
+  "title": "Retro Tower \u2014 Animated ASCII",
+  "shader": "media.glsl",
+  "media": "retro-tower",
+  "charset": " .:-=+*#%@",
+  "font": "DejaVu Sans Mono",
+  "cell": 4.4,
+  "aspect": 0.72,
+  "weight": 600,
+  "maxCells": 180000,
+  "fill": 0.04,
+  "background": "#080506",
+  "uniforms": {
+    "fit": 0,
+    "zoom": 1.0,
+    "contrast": 1.08,
+    "brightness": 0.035,
+    "gamma": 0.94,
+    "threshold": 0.025,
+    "colorMode": 0,
+    "vivid": 0.65,
+    "lens": 0,
+    "ripple": 0,
+    "backdrop": 0.1,
+    "warp": 10,
+    "warpAmount": 0.3,
+    "speed": 0.6
+  }
+}

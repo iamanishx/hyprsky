@@ -1,0 +1,22 @@
+{
+  "title": "Berserk \u2014 Eclipse & Drifting Manga Clouds",
+  "shader": "berserk-moonlight.glsl",
+  "media": "berserk-eclipse-layers",
+  "charset": " .:-=+*#%@",
+  "font": "DejaVu Sans Mono",
+  "cell": 2.0,
+  "aspect": 0.72,
+  "weight": 600,
+  "maxCells": 450000,
+  "fill": 0.02,
+  "background": "#000000",
+  "uniforms": {
+    "speed": 0.5,
+    "fit": 1,
+    "zoom": 1.0,
+    "exposure": 1.2
+  },
+  "effects": {
+    "bloom": 0.24
+  }
+}

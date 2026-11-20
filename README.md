@@ -14,6 +14,23 @@ One small C program, two GPU passes, no browser, no video.
 - **latte-dawn**: light theme in Catppuccin Latte. Pastel sunrise, soft drifting clouds, rolling lavender hills with valley mist.
 - **thunder**: a gold horizon line on black with a light pulse running along it, small arcs crackling along the line, drifting embers and a rippled floor reflection. Add `--image you.png` to stand your own cut-out picture on the line, reflected too.
 
+## Community collection
+
+| `network-orbit` | `nebula` |
+|---|---|
+| ![ASCII network globe](screenshots/collection/network-orbit.png) | ![Procedural nebula](screenshots/collection/nebula.png) |
+
+Also included: **ribbon-aurora**, **fighter-islands**, **space-drifter**, and ten
+bring-your-own-image recipes (green Aurora, landscapes, eclipse layers and photo
+star twinkling). The ASCII ports use compact bitmap glyphs, with no font or browser
+dependency. [Scene list, previews and image requirements](contrib/COLLECTION.md).
+
+```sh
+hyprsky --scene network-orbit     # bundled public-domain geography; simulated traffic
+hyprsky --scene nebula            # entirely procedural, no image needed
+hyprsky --scene northern-lights-photo --image /path/to/your-aurora.png
+```
+
 ## Why it's light
 
 Measured on a 1920×1080 laptop (Intel Raptor Lake iGPU):
@@ -102,6 +119,10 @@ wallpapers/
 ```
 
 The engine knows nothing about any particular wallpaper. To make your own, add a folder under `wallpapers/`. [wallpapers/README.md](wallpapers/README.md) explains the three files and how to live-reload while you edit. Pull requests with new wallpapers are welcome.
+
+Optional authoring checks: `make regen-wallpapers` regenerates the contributed ASCII
+passes using Python's standard library. `make test` runs headless EGL rendering tests
+without changing your desktop wallpaper. Python is not required for normal playback.
 
 Limitation: it draws on one output (the compositor's choice); multi-monitor support isn't there yet.
 

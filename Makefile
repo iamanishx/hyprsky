@@ -25,4 +25,14 @@ install: hyprsky
 run: hyprsky
 	HYPRSKY_WALLPAPERS=./wallpapers ./hyprsky --scene $(or $(SCENE),aurora)
 
-.PHONY: install run
+# Optional maintenance/test targets; Python is not needed by the installed renderer.
+regen-wallpapers:
+	python3 tools/port_asciipaper.py
+
+tests/render-scene: tests/render_scene.c hyprsky.c $(P)-client-protocol.h $(P)-protocol.c xdg-shell-protocol.c
+	cc -O2 -Wall -Wextra -o $@ tests/render_scene.c $(P)-protocol.c xdg-shell-protocol.c `pkg-config --cflags --libs $(PKGS)` -lm
+
+test: tests/render-scene
+	python3 tests/test_wallpapers.py
+
+.PHONY: install run regen-wallpapers test

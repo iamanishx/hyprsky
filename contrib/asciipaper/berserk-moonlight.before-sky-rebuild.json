@@ -1,0 +1,27 @@
+{
+  "title": "Berserk \u2014 Moonlight Manga Snow",
+  "shader": "berserk-moonlight.before-sky-rebuild.glsl",
+  "media": "berserk-moonlight",
+  "charset": " .:-=+*#%@",
+  "font": "DejaVu Sans Mono",
+  "cell": 2.4,
+  "aspect": 0.72,
+  "weight": 600,
+  "maxCells": 360000,
+  "fill": 0.02,
+  "background": "#020204",
+  "uniforms": {
+    "speed": 1.0,
+    "fit": 1,
+    "zoom": 1.0,
+    "contrast": 1.18,
+    "brightness": 0.0,
+    "gamma": 0.94,
+    "threshold": 0.035,
+    "vivid": 0.08,
+    "tint": "#ffffff"
+  },
+  "effects": {
+    "bloom": 0.336
+  }
+}

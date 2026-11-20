@@ -1,0 +1,28 @@
+{
+  "title": "Moonlit Resort \u2014 Moving Clouds",
+  "shader": "alpine-meadow.glsl",
+  "media": "moonlit-resort",
+  "charset": " .:-=+*#%@",
+  "font": "DejaVu Sans Mono",
+  "cell": 4.8,
+  "aspect": 0.72,
+  "weight": 600,
+  "maxCells": 180000,
+  "fill": 0.05,
+  "background": "#050912",
+  "uniforms": {
+    "speed": 0.85,
+    "contrast": 1.12,
+    "brightness": 0.01,
+    "gamma": 0.95,
+    "threshold": 0.03,
+    "vivid": 0.3,
+    "fit": 0,
+    "zoom": 1.0,
+    "backdrop": 0.14,
+    "skyLimit": 0.36,
+    "flowerWind": 0.0,
+    "lightFlicker": 0.6,
+    "tint": "#9bb2c4"
+  }
+}

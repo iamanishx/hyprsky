@@ -10,6 +10,21 @@ wallpapers/
   thunder/     gold horizon line, crackling arcs, embers, reflection; optional --image
 ```
 
+## Contributed scenes
+
+`nebula`, `network-orbit`, `ribbon-aurora`, `fighter-islands`, and `space-drifter`
+run out of the box. The globe's map is included and public domain; its moving
+traffic is simulated rather than a live network feed.
+
+`alpine-meadow`, `moonlit-peak`, `moonlit-resort`, `northern-lights-photo`,
+`green-aurora`, `yosemite-sunset`, `retro-tower`, `berserk-moonlight`,
+`berserk-moonlight-legacy`, and `nebula-photo` require your own `--image` PNG.
+Some require a packed layer atlas, not an ordinary photograph. See the
+[collection guide](../contrib/COLLECTION.md) before using those recipes.
+
+The ASCII scene passes are checked-in generated files; their editable sources
+live in `contrib/asciipaper`. Run `make regen-wallpapers` to update them.
+
 ## Adding one
 
 1. Copy an existing folder: `cp -r wallpapers/aurora wallpapers/mything`

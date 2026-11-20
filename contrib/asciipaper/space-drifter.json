@@ -1,0 +1,15 @@
+{
+  "title": "Spacewalk \u2014 Colored Nebula & Planets",
+  "shader": "space-drifter.glsl",
+  "charset": " .,:;+=*#%@",
+  "font": "DejaVu Sans Mono",
+  "cell": 4.4,
+  "aspect": 0.72,
+  "weight": 600,
+  "maxCells": 240000,
+  "fill": 0.06,
+  "background": "#02030a",
+  "effects": {
+    "bloom": 0.12
+  }
+}
